@@ -207,10 +207,14 @@ st.markdown(
         margin-bottom: 1rem;
     }
 
-    .odai-box {
+    .box-wrap {
         width: 100%;
         max-width: 360px;
         margin: 0 auto;
+    }
+
+    .odai-box {
+        width: 100%;
         aspect-ratio: 1 / 2;
         border: 2px solid #d9d9d9;
         border-radius: 18px;
@@ -221,6 +225,7 @@ st.markdown(
         justify-content: center;
         padding: 1.2rem;
         text-align: center;
+        box-sizing: border-box;
     }
 
     .odai-text {
@@ -228,18 +233,13 @@ st.markdown(
         font-weight: 700;
         line-height: 1.6;
         word-break: break-word;
+        color: #222222;
     }
 
     .placeholder-text {
         font-size: 1.05rem;
         color: #777777;
         line-height: 1.8;
-    }
-
-    .button-wrap {
-        width: 100%;
-        max-width: 360px;
-        margin: 1rem auto 0 auto;
     }
 
     @media (max-width: 640px) {
@@ -263,7 +263,6 @@ st.markdown(
 
 # =========================
 # モード選択
-# 手動入力時は自動処理しない
 # =========================
 mode = st.radio(
     "入力方法",
@@ -282,6 +281,8 @@ if mode == "手動入力":
 # お題ボックス
 # =========================
 current_text = st.session_state.current_odai.strip()
+
+st.markdown('<div class="box-wrap">', unsafe_allow_html=True)
 
 if current_text:
     safe_text = html.escape(current_text)
@@ -303,26 +304,29 @@ else:
         unsafe_allow_html=True,
     )
 
+st.markdown("</div>", unsafe_allow_html=True)
+
+st.markdown("<div style='height: 0.8rem;'></div>", unsafe_allow_html=True)
+
 # =========================
 # ボタン
 # =========================
-st.markdown('<div class="button-wrap">', unsafe_allow_html=True)
+left, center, right = st.columns([1, 6, 1])
 
-if mode == "ランダム抽選":
-    if not st.session_state.has_drawn:
-        if st.button("お題を引く", type="primary", use_container_width=True):
-            draw_random_odai()
-            st.rerun()
+with center:
+    if mode == "ランダム抽選":
+        if not st.session_state.has_drawn:
+            if st.button("お題を引く", type="primary", use_container_width=True):
+                draw_random_odai()
+                st.rerun()
+        else:
+            if st.button("次のお題を引く", type="primary", use_container_width=True):
+                draw_random_odai()
+                st.rerun()
     else:
-        if st.button("次のお題を引く", type="primary", use_container_width=True):
-            draw_random_odai()
+        if st.button("手動入力したお題を表示", type="primary", use_container_width=True):
+            show_manual_odai()
             st.rerun()
-else:
-    if st.button("手動入力したお題を表示", type="primary", use_container_width=True):
-        show_manual_odai()
-        st.rerun()
-
-st.markdown("</div>", unsafe_allow_html=True)
 
 # =========================
 # 補足
