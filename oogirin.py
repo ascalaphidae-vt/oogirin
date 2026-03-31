@@ -1,14 +1,15 @@
-# -- coding utf-8 --
-# Streamlit app 大喜利お題ルーレット by あすとらふぃーだ
+# -*- coding: utf-8 -*-
+# Streamlit app: 大喜利お題ルーレット by あすとらふぃーだ
 
 import secrets
+import html
 import streamlit as st
 
-X_URL = httpsx.comAscalaphidae
+X_URL = "https://x.com/Ascalaphidae"
 
 st.set_page_config(
-    page_title=大喜利お題ルーレット,
-    layout=centered,
+    page_title="大喜利お題ルーレット",
+    layout="centered",
 )
 
 # =========================
@@ -171,26 +172,25 @@ ODAI_LIST = [
 # =========================
 # セッション状態
 # =========================
-if current_odai not in st.session_state
-    st.session_state.current_odai = 
+if "current_odai" not in st.session_state:
+    st.session_state.current_odai = ""
 
-if has_drawn not in st.session_state
+if "has_drawn" not in st.session_state:
     st.session_state.has_drawn = False
 
-if manual_input not in st.session_state
-    st.session_state.manual_input = 
+if "manual_input" not in st.session_state:
+    st.session_state.manual_input = ""
 
 # =========================
-# 抽選関数
+# 関数
 # =========================
-def draw_random_odai()
-    # 偏りの少ない乱数で抽選
+def draw_random_odai():
     st.session_state.current_odai = secrets.choice(ODAI_LIST)
     st.session_state.has_drawn = True
 
-def apply_manual_odai()
+def show_manual_odai():
     text = st.session_state.manual_input.strip()
-    if text
+    if text:
         st.session_state.current_odai = text
         st.session_state.has_drawn = True
 
@@ -198,156 +198,134 @@ def apply_manual_odai()
 # CSS
 # =========================
 st.markdown(
-    
-    style
-    .title-wrap {
-        margin-bottom 1rem;
-    }
-
+    """
+    <style>
     .byline {
-        font-size 0.95rem;
-        opacity 0.8;
-        margin-top -0.2rem;
-        margin-bottom 1rem;
+        font-size: 0.95rem;
+        opacity: 0.8;
+        margin-top: -0.2rem;
+        margin-bottom: 1rem;
     }
 
     .odai-box {
-        width 100%;
-        max-width 360px;
-        margin 0 auto;
-        aspect-ratio 1  2;  縦2：横1 
-        border 2px solid #d9d9d9;
-        border-radius 18px;
-        background #ffffff;
-        box-shadow 0 6px 20px rgba(0,0,0,0.06);
-        display flex;
-        align-items center;
-        justify-content center;
-        padding 1.2rem;
-        text-align center;
+        width: 100%;
+        max-width: 360px;
+        margin: 0 auto;
+        aspect-ratio: 1 / 2;
+        border: 2px solid #d9d9d9;
+        border-radius: 18px;
+        background: #ffffff;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.2rem;
+        text-align: center;
     }
 
     .odai-text {
-        font-size 1.55rem;
-        font-weight 700;
-        line-height 1.6;
-        word-break break-word;
+        font-size: 1.5rem;
+        font-weight: 700;
+        line-height: 1.6;
+        word-break: break-word;
     }
 
     .placeholder-text {
-        font-size 1.1rem;
-        color #777777;
-        line-height 1.8;
+        font-size: 1.05rem;
+        color: #777777;
+        line-height: 1.8;
     }
 
-    .button-space {
-        margin-top 1rem;
-        margin-bottom 0.3rem;
+    .button-wrap {
+        width: 100%;
+        max-width: 360px;
+        margin: 1rem auto 0 auto;
     }
 
-    .section-card {
-        max-width 360px;
-        margin 0 auto;
-    }
-
-    @media (max-width 640px) {
+    @media (max-width: 640px) {
         .odai-text {
-            font-size 1.3rem;
+            font-size: 1.25rem;
         }
     }
-    style
-    ,
+    </style>
+    """,
     unsafe_allow_html=True,
 )
 
 # =========================
 # タイトル
 # =========================
+st.title("大喜利お題ルーレット")
 st.markdown(
-    f
-    div class=title-wrap
-        h1 style=margin-bottom0.2rem;大喜利お題ルーレットh1
-        div class=byline
-            by a href={X_URL} target=_blank style=text-decorationnone;あすとらふぃーだa
-        div
-    div
-    ,
+    f'<div class="byline">by <a href="{X_URL}" target="_blank" style="text-decoration:none;">あすとらふぃーだ</a></div>',
     unsafe_allow_html=True,
 )
 
 # =========================
 # モード選択
+# 手動入力時は自動処理しない
 # =========================
 mode = st.radio(
-    入力方法,
-    [ランダム抽選, 手動入力],
+    "入力方法",
+    ["ランダム抽選", "手動入力"],
     horizontal=True,
 )
 
-# =========================
-# 手動入力
-# 手動入力時は自動処理を行わない
-# =========================
-if mode == 手動入力
+if mode == "手動入力":
     st.text_input(
-        表示したいお題を入力,
-        key=manual_input,
-        placeholder=ここにお題を入力,
+        "表示したいお題を入力",
+        key="manual_input",
+        placeholder="ここにお題を入力",
     )
 
 # =========================
-# お題表示ボックス
+# お題ボックス
 # =========================
-box_text = st.session_state.current_odai.strip()
+current_text = st.session_state.current_odai.strip()
 
-if box_text
+if current_text:
+    safe_text = html.escape(current_text)
     st.markdown(
-        f
-        div class=odai-box
-            div class=odai-text{box_text}div
-        div
-        ,
+        f"""
+        <div class="odai-box">
+            <div class="odai-text">{safe_text}</div>
+        </div>
+        """,
         unsafe_allow_html=True,
     )
-else
+else:
     st.markdown(
-        
-        div class=odai-box
-            div class=placeholder-text
-                ここにお題が表示されます
-            div
-        div
-        ,
+        """
+        <div class="odai-box">
+            <div class="placeholder-text">ここにお題が表示されます</div>
+        </div>
+        """,
         unsafe_allow_html=True,
     )
 
 # =========================
-# ボタン表示
+# ボタン
 # =========================
-st.markdown('div class=section-card button-space', unsafe_allow_html=True)
+st.markdown('<div class="button-wrap">', unsafe_allow_html=True)
 
-if mode == ランダム抽選
-    # ① 初回
-    if not st.session_state.has_drawn
-        if st.button(お題を引く, use_container_width=True, type=primary)
+if mode == "ランダム抽選":
+    if not st.session_state.has_drawn:
+        if st.button("お題を引く", type="primary", use_container_width=True):
             draw_random_odai()
             st.rerun()
-
-    # ② 2回目以降
-    else
-        if st.button(次のお題を引く, use_container_width=True, type=primary)
+    else:
+        if st.button("次のお題を引く", type="primary", use_container_width=True):
             draw_random_odai()
             st.rerun()
-
-else
-    if st.button(手動入力したお題を表示, use_container_width=True, type=primary)
-        apply_manual_odai()
+else:
+    if st.button("手動入力したお題を表示", type="primary", use_container_width=True):
+        show_manual_odai()
         st.rerun()
 
-st.markdown(div, unsafe_allow_html=True)
+st.markdown("</div>", unsafe_allow_html=True)
 
 # =========================
 # 補足
 # =========================
-with st.expander(お題数を見る)
-    st.write(f登録されているお題数：{len(ODAI_LIST)} 個)
+with st.expander("登録されているお題数"):
+    st.write(f"{len(ODAI_LIST)} 個")
